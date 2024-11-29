@@ -30,8 +30,8 @@ if uploaded_file is not None:
         st.dataframe(group_counts)
 
         # Count people by unit
-        st.subheader("จำนวนคนในแต่ละหน่วย:")
-        unit_counts = count_by_unit(cleaned_df)
+        st.subheader("จำนวนคนในแต่ละหน่วย (พร้อมกลุ่ม):")
+        unit_counts = count_by_unit(cleaned_df, unit_groups)
         st.dataframe(unit_counts)
 
         # Provide download link for the cleaned data
