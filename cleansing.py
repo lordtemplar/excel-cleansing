@@ -2,28 +2,50 @@ import pandas as pd
 import random
 
 def clean_data(df):
-    # Rename columns for better readability
-    df.columns = [
-        "สังกัด(หน่วยฝึกทหารใหม่)", "คำนำหน้า", "ชื่อ", "นามสกุล", 
-        "เลขบัตรประชาชน", "กรุ๊ปเลือด", "เบอร์โทรศัพท์", "อาชีพ", 
-        "ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"
-    ]
+    report = []
 
     # Step 1: Remove rows where "เลขบัตรประชาชน" does not have 13 digits
+    initial_count = len(df)
     df = df[df["เลขบัตรประชาชน"].astype(str).str.len() == 13]
+    report.append({
+        "ฟังก์ชันที่ใช้": "ลบข้อมูลที่เลขบัตรประชาชนไม่ครบ 13 หลัก",
+        "จำนวนข้อมูลก่อน": initial_count,
+        "จำนวนข้อมูลที่ถูกลบ": initial_count - len(df),
+        "จำนวนข้อมูลหลัง": len(df)
+    })
 
     # Step 2: Remove duplicate rows based on "เลขบัตรประชาชน"
-    df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].astype(str).str.strip()
+    initial_count = len(df)
     df = df.drop_duplicates(subset="เลขบัตรประชาชน", keep='first')
+    report.append({
+        "ฟังก์ชันที่ใช้": "ลบข้อมูลที่ซ้ำในเลขบัตรประชาชน",
+        "จำนวนข้อมูลก่อน": initial_count,
+        "จำนวนข้อมูลที่ถูกลบ": initial_count - len(df),
+        "จำนวนข้อมูลหลัง": len(df)
+    })
 
-    # Step 3: Fill missing values
+    # Step 3: Fill missing values in "ทักษะ"
+    initial_count = len(df)
     df["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"] = df["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"].fillna("ไม่มี")
+    report.append({
+        "ฟังก์ชันที่ใช้": "เติมค่า 'ไม่มี' ในคอลัมน์ทักษะ",
+        "จำนวนข้อมูลก่อน": initial_count,
+        "จำนวนข้อมูลที่ถูกลบ": 0,
+        "จำนวนข้อมูลหลัง": len(df)
+    })
 
-    # Step 4: Validate blood types in "กรุ๊ปเลือด" and replace invalid or missing values
+    # Step 4: Validate blood types and replace invalid or missing values
     valid_blood_types = ["เอ", "บี", "โอ", "เอบี"]
+    initial_count = len(df)
     df["กรุ๊ปเลือด"] = df["กรุ๊ปเลือด"].apply(
         lambda x: x if x in valid_blood_types else random.choice(valid_blood_types)
     )
+    report.append({
+        "ฟังก์ชันที่ใช้": "ตรวจสอบและเติมกรุ๊ปเลือดที่ไม่ถูกต้อง",
+        "จำนวนข้อมูลก่อน": initial_count,
+        "จำนวนข้อมูลที่ถูกลบ": 0,
+        "จำนวนข้อมูลหลัง": len(df)
+    })
 
     # Step 5: Replace all values in "คำนำหน้า" with "พลทหาร"
     df["คำนำหน้า"] = "พลทหาร"
@@ -42,12 +64,26 @@ def clean_data(df):
     df["เบอร์โทรศัพท์"] = df["เบอร์โทรศัพท์"].apply(clean_phone_number)
 
     # Fill missing "เบอร์โทรศัพท์" by copying from the row above
+    initial_count = len(df)
     df["เบอร์โทรศัพท์"] = df["เบอร์โทรศัพท์"].fillna(method='ffill')
+    report.append({
+        "ฟังก์ชันที่ใช้": "แก้ไขเบอร์โทรศัพท์ให้ครบ 10 หลัก",
+        "จำนวนข้อมูลก่อน": initial_count,
+        "จำนวนข้อมูลที่ถูกลบ": 0,
+        "จำนวนข้อมูลหลัง": len(df)
+    })
 
     # Step 7: Remove duplicate rows across all columns
+    initial_count = len(df)
     df = df.drop_duplicates()
+    report.append({
+        "ฟังก์ชันที่ใช้": "ลบข้อมูลที่ซ้ำในทุกคอลัมน์",
+        "จำนวนข้อมูลก่อน": initial_count,
+        "จำนวนข้อมูลที่ถูกลบ": initial_count - len(df),
+        "จำนวนข้อมูลหลัง": len(df)
+    })
 
-    # Step 8: Ensure "เลขบัตรประชาชน" is a string
-    df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].astype(str)
+    # Convert report to DataFrame
+    clean_report = pd.DataFrame(report)
 
-    return df
+    return df, clean_report
