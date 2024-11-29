@@ -49,4 +49,14 @@ def count_by_unit(df):
     # Count people by each unit
     unit_counts = df["สังกัด(หน่วยฝึกทหารใหม่)"].value_counts().reset_index()
     unit_counts.columns = ["หน่วย", "จำนวนคน"]
+
+    # Map each unit to its group
+    group_mapping = {}
+    for group_name, units in unit_groups.items():
+        for unit in units:
+            group_mapping[unit] = group_name
+
+    # Add group column to the DataFrame
+    unit_counts["กลุ่ม"] = unit_counts["หน่วย"].map(group_mapping).fillna("ไม่ระบุ")
+
     return unit_counts
