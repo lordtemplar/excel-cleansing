@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from cleansing import clean_data
+from cleansing import clean_data, generate_clean_report
 from unit_groups import unit_groups, count_by_group, count_by_unit
 
 st.set_page_config(layout="wide")  # Set layout to wide
@@ -19,31 +19,16 @@ if uploaded_file is not None:
         st.subheader("ข้อมูลดิบ (ก่อนทำความสะอาด):")
         st.dataframe(df, use_container_width=True)
 
-        # Clean the data
-        cleaned_df = clean_data(df)
+        # Clean the data and generate a report
+        cleaned_df, clean_report = clean_data(df)
 
         # Display cleaned data
         st.subheader("ข้อมูลที่ทำความสะอาดแล้ว:")
         st.dataframe(cleaned_df, use_container_width=True)
 
-        # Edit unit names
-        st.subheader("แก้ไขชื่อหน่วย:")
-        unique_units = cleaned_df["สังกัด(หน่วยฝึกทหารใหม่)"].unique()
-
-        # Select unit to edit
-        selected_unit = st.selectbox("เลือกหน่วยที่ต้องการแก้ไข", options=unique_units)
-
-        # Input new name
-        new_name = st.text_input("กรอกชื่อใหม่สำหรับหน่วย:", value=selected_unit)
-
-        if st.button("บันทึกการแก้ไข"):
-            # Apply changes to the DataFrame
-            cleaned_df["สังกัด(หน่วยฝึกทหารใหม่)"] = cleaned_df["สังกัด(หน่วยฝึกทหารใหม่)"].replace({selected_unit: new_name})
-            st.success(f"ชื่อหน่วย '{selected_unit}' ถูกแก้ไขเป็น '{new_name}' เรียบร้อย!")
-
-            # Display updated data
-            st.subheader("ข้อมูลหลังแก้ไขชื่อหน่วย:")
-            st.dataframe(cleaned_df, use_container_width=True)
+        # Display clean report
+        st.subheader("รายงานการทำความสะอาดข้อมูล:")
+        st.write(clean_report)
 
         # Count people by group
         st.subheader("จำนวนคนในแต่ละกลุ่ม:")
