@@ -46,8 +46,21 @@ def count_by_group(df, unit_groups):
 
     return pd.DataFrame(list(group_counts.items()), columns=["กลุ่ม", "จำนวนคน"])
 
-def count_by_unit(df):
+def count_by_unit(df, unit_groups):
+    """
+    Count people by unit and add a column to map each unit to its group.
+    """
     # Count people by each unit
     unit_counts = df["สังกัด(หน่วยฝึกทหารใหม่)"].value_counts().reset_index()
     unit_counts.columns = ["หน่วย", "จำนวนคน"]
+
+    # Add a column to map each unit to its corresponding group
+    def find_group(unit):
+        for group_name, units in unit_groups.items():
+            if unit in units:
+                return group_name
+        return "ไม่ตรงกับกลุ่มใด"  # Default value if no group matches
+
+    unit_counts["กลุ่ม"] = unit_counts["หน่วย"].apply(find_group)
+
     return unit_counts
