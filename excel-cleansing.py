@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from cleansing import clean_data
-from unit_groups import unit_groups, count_by_group
+from unit_groups import unit_groups, count_by_group, count_by_unit
 
 st.title("โปรแกรมทำความสะอาดข้อมูล Excel")
 
@@ -28,6 +28,11 @@ if uploaded_file is not None:
         st.subheader("จำนวนคนในแต่ละกลุ่ม:")
         group_counts = count_by_group(cleaned_df, unit_groups)
         st.dataframe(group_counts)
+
+        # Count people by unit
+        st.subheader("จำนวนคนในแต่ละหน่วย:")
+        unit_counts = count_by_unit(cleaned_df)
+        st.dataframe(unit_counts)
 
         # Provide download link for the cleaned data
         st.subheader("ดาวน์โหลดข้อมูลที่ทำความสะอาดแล้ว:")
