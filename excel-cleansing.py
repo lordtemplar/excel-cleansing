@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from cleansing import clean_data, generate_clean_report
+from cleansing import clean_data  # นำเข้าเฉพาะ clean_data
 from unit_groups import unit_groups, count_by_group, count_by_unit
 
 st.set_page_config(layout="wide")  # Set layout to wide
@@ -20,7 +20,7 @@ if uploaded_file is not None:
         st.dataframe(df, use_container_width=True)
 
         # Clean the data and generate a report
-        cleaned_df, clean_report = clean_data(df)
+        cleaned_df, clean_report = clean_data(df)  # แก้ไขตรงนี้เพราะ clean_report ถูกสร้างใน clean_data
 
         # Display cleaned data
         st.subheader("ข้อมูลที่ทำความสะอาดแล้ว:")
@@ -28,7 +28,7 @@ if uploaded_file is not None:
 
         # Display clean report
         st.subheader("รายงานการทำความสะอาดข้อมูล:")
-        st.write(clean_report)
+        st.write(clean_report)  # แสดงรายงานในรูปแบบ DataFrame
 
         # Count people by group
         st.subheader("จำนวนคนในแต่ละกลุ่ม:")
