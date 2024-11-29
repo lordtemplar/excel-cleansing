@@ -53,6 +53,12 @@ def clean_data(df):
 
     return df
 
+def count_people_by_unit(df):
+    # Group by "สังกัด(หน่วยฝึกทหารใหม่)" and count rows
+    unit_counts = df["สังกัด(หน่วยฝึกทหารใหม่)"].value_counts().reset_index()
+    unit_counts.columns = ["สังกัด(หน่วยฝึกทหารใหม่)", "จำนวนคน"]
+    return unit_counts
+
 # Streamlit App
 st.title("โปรแกรมทำความสะอาดข้อมูล Excel")
 
@@ -74,6 +80,11 @@ if uploaded_file is not None:
         # Display cleaned data
         st.subheader("ข้อมูลที่ทำความสะอาดแล้ว:")
         st.dataframe(cleaned_df)
+
+        # Count people by unit
+        st.subheader("จำนวนคนในแต่ละหน่วย:")
+        unit_counts = count_people_by_unit(cleaned_df)
+        st.dataframe(unit_counts)
 
         # Provide download link for the cleaned data
         st.subheader("ดาวน์โหลดข้อมูลที่ทำความสะอาดแล้ว:")
