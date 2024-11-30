@@ -4,19 +4,21 @@ import random
 def clean_data(df):
     report = []
 
-    # Step 0: Remove hidden spaces in "เลขบัตรประชาชน"
+    # Step 0: ลบช่องว่างและอักขระพิเศษใน "เลขบัตรประชาชน"
     initial_count = len(df)
     if "เลขบัตรประชาชน" in df.columns:
-        df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].astype(str).str.replace(" ", "").str.strip()
+        # ลบช่องว่างและอักขระพิเศษที่อาจมี
+        df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].astype(str).str.replace(r"\s+", "", regex=True).str.strip()
         report.append({
-            "ฟังก์ชันที่ใช้": "ลบช่องว่างที่ซ่อนอยู่ในคอลัมน์ เลขบัตรประชาชน",
+            "ฟังก์ชันที่ใช้": "ลบช่องว่างและอักขระพิเศษในคอลัมน์ เลขบัตรประชาชน",
             "จำนวนข้อมูลก่อน": initial_count,
             "จำนวนข้อมูลที่ถูกลบ": 0,
             "จำนวนข้อมูลหลัง": len(df)
         })
 
-    # Step 1: Convert all data to string
-    df = df.astype(str)  # แปลงข้อมูลทั้งหมดใน DataFrame เป็น String
+    # Step 1: แปลงข้อมูลทุกคอลัมน์เป็น String
+    initial_count = len(df)
+    df = df.astype(str)  # แปลงข้อมูลทุกคอลัมน์ให้เป็น String
     report.append({
         "ฟังก์ชันที่ใช้": "แปลงข้อมูลทุกคอลัมน์เป็น String",
         "จำนวนข้อมูลก่อน": initial_count,
@@ -24,25 +26,18 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 2: Remove rows where "เลขบัตรประชาชน" does not have 13 digits
+    # Step 2: ตรวจสอบ "เลขบัตรประชาชน" ให้ครบ 13 หลัก
     initial_count = len(df)
-    
-    # ลบช่องว่างและอักขระพิเศษที่ซ่อนอยู่ใน "เลขบัตรประชาชน"
-    df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].str.replace(r"\s+", "", regex=True).str.strip()
-    
-    # ตรวจสอบเฉพาะข้อมูลที่มีความยาว 13 หลัก
-    df = df[df["เลขบัตรประชาชน"].str.len() == 13]
-    
-    # บันทึกการเปลี่ยนแปลงลงใน report
+    invalid_rows = df[df["เลขบัตรประชาชน"].str.len() != 13]  # แถวที่ไม่ผ่านเงื่อนไข
+    df = df[df["เลขบัตรประชาชน"].str.len() == 13]  # เก็บเฉพาะข้อมูลที่มี 13 หลัก
     report.append({
         "ฟังก์ชันที่ใช้": "ลบข้อมูลที่เลขบัตรประชาชนไม่ครบ 13 หลัก",
         "จำนวนข้อมูลก่อน": initial_count,
-        "จำนวนข้อมูลที่ถูกลบ": initial_count - len(df),
+        "จำนวนข้อมูลที่ถูกลบ": len(invalid_rows),
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-
-    # Step 3: Remove duplicate rows based on "เลขบัตรประชาชน"
+    # Step 3: ลบข้อมูลที่ซ้ำในคอลัมน์ "เลขบัตรประชาชน"
     initial_count = len(df)
     df = df.drop_duplicates(subset="เลขบัตรประชาชน", keep='first')
     report.append({
@@ -52,7 +47,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 4: Fill missing values in "ทักษะ"
+    # Step 4: เติมค่า "ไม่มี" ในคอลัมน์ "ทักษะ"
     initial_count = len(df)
     df["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"] = df["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"].fillna("ไม่มี")
     report.append({
@@ -62,7 +57,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 5: Validate blood types and replace invalid or missing values
+    # Step 5: ตรวจสอบกรุ๊ปเลือด
     valid_blood_types = ["เอ", "บี", "โอ", "เอบี"]
     initial_count = len(df)
     df["กรุ๊ปเลือด"] = df["กรุ๊ปเลือด"].apply(
@@ -75,10 +70,10 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 6: Replace all values in "คำนำหน้า" with "พลทหาร"
+    # Step 6: แก้ไขคำนำหน้า
     df["คำนำหน้า"] = "พลทหาร"
 
-    # Step 7: Clean "เบอร์โทรศัพท์"
+    # Step 7: แก้ไขเบอร์โทรศัพท์
     def clean_phone_number(phone):
         phone = str(phone).strip()
         if len(phone) < 10:  # If less than 10 digits
@@ -99,7 +94,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 8: Remove duplicate rows across all columns
+    # Step 8: ลบข้อมูลที่ซ้ำในทุกคอลัมน์
     initial_count = len(df)
     df = df.drop_duplicates()
     report.append({
