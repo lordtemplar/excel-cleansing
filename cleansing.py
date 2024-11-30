@@ -4,9 +4,19 @@ import random
 def clean_data(df):
     report = []
 
+    # Step 0: Convert all data to string
+    initial_count = len(df)
+    df = df.astype(str)  # แปลงข้อมูลทั้งหมดใน DataFrame เป็น String
+    report.append({
+        "ฟังก์ชันที่ใช้": "แปลงข้อมูลทุกคอลัมน์เป็น String",
+        "จำนวนข้อมูลก่อน": initial_count,
+        "จำนวนข้อมูลที่ถูกลบ": 0,
+        "จำนวนข้อมูลหลัง": len(df)
+    })
+
     # Step 1: Remove rows where "เลขบัตรประชาชน" does not have 13 digits
     initial_count = len(df)
-    df = df[df["เลขบัตรประชาชน"].astype(str).str.len() == 13]
+    df = df[df["เลขบัตรประชาชน"].str.len() == 13]
     report.append({
         "ฟังก์ชันที่ใช้": "ลบข้อมูลที่เลขบัตรประชาชนไม่ครบ 13 หลัก",
         "จำนวนข้อมูลก่อน": initial_count,
@@ -52,8 +62,6 @@ def clean_data(df):
 
     # Step 6: Clean "เบอร์โทรศัพท์"
     def clean_phone_number(phone):
-        if pd.isna(phone):  # If the value is missing
-            return None  # Temporary placeholder to be filled later
         phone = str(phone).strip()
         if len(phone) < 10:  # If less than 10 digits
             return phone.zfill(10)  # Pad with leading zeros
