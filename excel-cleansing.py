@@ -13,18 +13,18 @@ uploaded_file = st.file_uploader("อัปโหลดไฟล์ Excel", type
 if uploaded_file is not None:
     try:
         # Load the uploaded file into a DataFrame
-        df = pd.read_excel(uploaded_file)
+        original_df = pd.read_excel(uploaded_file)  # เก็บข้อมูลดิบเดิมใน original_df
 
         # Display original data
         st.subheader("ข้อมูลดิบ (ก่อนทำความสะอาด):")
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(original_df, use_container_width=True)  # แสดงข้อมูลดิบเดิม
 
         # Clean the data and generate a report
-        cleaned_df, clean_report = clean_data(df)
+        cleaned_df, clean_report = clean_data(original_df)  # ส่ง original_df เข้าสู่ clean_data
 
         # Display cleaned data
         st.subheader("ข้อมูลที่ทำความสะอาดแล้ว:")
-        st.dataframe(cleaned_df, use_container_width=True)
+        st.dataframe(cleaned_df, use_container_width=True)  # แสดงข้อมูลหลังการ Clean
 
         # Edit unit names
         st.subheader("แก้ไขชื่อหน่วย:")
