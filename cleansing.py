@@ -4,8 +4,18 @@ import random
 def clean_data(df):
     report = []
 
-    # Step 0: Convert all data to string
+    # Step 0: Remove hidden spaces in "เลขบัตรประชาชน"
     initial_count = len(df)
+    if "เลขบัตรประชาชน" in df.columns:
+        df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].astype(str).str.replace(" ", "").str.strip()
+        report.append({
+            "ฟังก์ชันที่ใช้": "ลบช่องว่างที่ซ่อนอยู่ในคอลัมน์ เลขบัตรประชาชน",
+            "จำนวนข้อมูลก่อน": initial_count,
+            "จำนวนข้อมูลที่ถูกลบ": 0,
+            "จำนวนข้อมูลหลัง": len(df)
+        })
+
+    # Step 1: Convert all data to string
     df = df.astype(str)  # แปลงข้อมูลทั้งหมดใน DataFrame เป็น String
     report.append({
         "ฟังก์ชันที่ใช้": "แปลงข้อมูลทุกคอลัมน์เป็น String",
@@ -14,7 +24,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 1: Remove rows where "เลขบัตรประชาชน" does not have 13 digits
+    # Step 2: Remove rows where "เลขบัตรประชาชน" does not have 13 digits
     initial_count = len(df)
     df = df[df["เลขบัตรประชาชน"].str.len() == 13]
     report.append({
@@ -24,7 +34,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 2: Remove duplicate rows based on "เลขบัตรประชาชน"
+    # Step 3: Remove duplicate rows based on "เลขบัตรประชาชน"
     initial_count = len(df)
     df = df.drop_duplicates(subset="เลขบัตรประชาชน", keep='first')
     report.append({
@@ -34,7 +44,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 3: Fill missing values in "ทักษะ"
+    # Step 4: Fill missing values in "ทักษะ"
     initial_count = len(df)
     df["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"] = df["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"].fillna("ไม่มี")
     report.append({
@@ -44,7 +54,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 4: Validate blood types and replace invalid or missing values
+    # Step 5: Validate blood types and replace invalid or missing values
     valid_blood_types = ["เอ", "บี", "โอ", "เอบี"]
     initial_count = len(df)
     df["กรุ๊ปเลือด"] = df["กรุ๊ปเลือด"].apply(
@@ -57,10 +67,10 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 5: Replace all values in "คำนำหน้า" with "พลทหาร"
+    # Step 6: Replace all values in "คำนำหน้า" with "พลทหาร"
     df["คำนำหน้า"] = "พลทหาร"
 
-    # Step 6: Clean "เบอร์โทรศัพท์"
+    # Step 7: Clean "เบอร์โทรศัพท์"
     def clean_phone_number(phone):
         phone = str(phone).strip()
         if len(phone) < 10:  # If less than 10 digits
@@ -81,7 +91,7 @@ def clean_data(df):
         "จำนวนข้อมูลหลัง": len(df)
     })
 
-    # Step 7: Remove duplicate rows across all columns
+    # Step 8: Remove duplicate rows across all columns
     initial_count = len(df)
     df = df.drop_duplicates()
     report.append({
