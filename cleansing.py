@@ -26,13 +26,21 @@ def clean_data(df):
 
     # Step 2: Remove rows where "เลขบัตรประชาชน" does not have 13 digits
     initial_count = len(df)
+    
+    # ลบช่องว่างและอักขระพิเศษที่ซ่อนอยู่ใน "เลขบัตรประชาชน"
+    df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].str.replace(r"\s+", "", regex=True).str.strip()
+    
+    # ตรวจสอบเฉพาะข้อมูลที่มีความยาว 13 หลัก
     df = df[df["เลขบัตรประชาชน"].str.len() == 13]
+    
+    # บันทึกการเปลี่ยนแปลงลงใน report
     report.append({
         "ฟังก์ชันที่ใช้": "ลบข้อมูลที่เลขบัตรประชาชนไม่ครบ 13 หลัก",
         "จำนวนข้อมูลก่อน": initial_count,
         "จำนวนข้อมูลที่ถูกลบ": initial_count - len(df),
         "จำนวนข้อมูลหลัง": len(df)
     })
+
 
     # Step 3: Remove duplicate rows based on "เลขบัตรประชาชน"
     initial_count = len(df)
