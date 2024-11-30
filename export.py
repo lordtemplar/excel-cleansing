@@ -22,6 +22,10 @@ if uploaded_file is not None:
         "ทักษะ": df1["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"],
     })
 
+    # แสดงตัวอย่างข้อมูลทั้งหมด
+    st.write("ข้อมูลทั้งหมดที่แปลงแล้ว (Excel แบบที่ 2):")
+    st.dataframe(df2)
+
     # แบ่งข้อมูลเป็นไฟล์ย่อย ไฟล์ละ 1000 แถว
     chunk_size = 1000
     chunks = [df2.iloc[i:i + chunk_size] for i in range(0, len(df2), chunk_size)]
