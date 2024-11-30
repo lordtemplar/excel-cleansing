@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 # อัปโหลดไฟล์ Excel ที่ 1
-st.title("แปลงข้อมูลจาก Excel ที่ 1 ไปยัง Excel ที่ 2")
+st.title("แปลงและแบ่งข้อมูล Excel")
 
 uploaded_file = st.file_uploader("อัปโหลดไฟล์ Excel ที่ 1", type=["xlsx"])
 if uploaded_file is not None:
@@ -22,17 +22,21 @@ if uploaded_file is not None:
         "ทักษะ": df1["ทักษะ(ตัวอย่าง,ไกด์นำเที่ยว,พ่อครัว,ช่างตัดผม)"],
     })
 
-    # แสดงตัวอย่างข้อมูล
-    st.write("ข้อมูลที่แปลงแล้ว:")
-    st.dataframe(df2)
+    # แบ่งข้อมูลเป็นไฟล์ย่อย ไฟล์ละ 1000 แถว
+    chunk_size = 1000
+    chunks = [df2.iloc[i:i + chunk_size] for i in range(0, len(df2), chunk_size)]
 
-    # ดาวน์โหลดไฟล์ Excel ที่ 2
-    output_file = "Excel_2_Output.xlsx"
-    df2.to_excel(output_file, index=False, engine="openpyxl")
-    with open(output_file, "rb") as file:
-        st.download_button(
-            label="ดาวน์โหลดไฟล์ Excel ที่ 2",
-            data=file,
-            file_name="Excel_2_Output.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+    # ดาวน์โหลดไฟล์ย่อย
+    for idx, chunk in enumerate(chunks, start=1):
+        output_file = f"Excel_2_Output_Part_{idx}.xlsx"
+        chunk.to_excel(output_file, index=False, engine="openpyxl")
+
+        with open(output_file, "rb") as file:
+            st.download_button(
+                label=f"ดาวน์โหลดไฟล์ย่อยที่ {idx}",
+                data=file,
+                file_name=f"Excel_2_Output_Part_{idx}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+    st.success("แบ่งไฟล์เสร็จสิ้น! ดาวน์โหลดไฟล์ทั้งหมดได้ด้านบน")
