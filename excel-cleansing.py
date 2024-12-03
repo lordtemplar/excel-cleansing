@@ -5,7 +5,7 @@ from unit_groups import unit_groups, count_by_group_with_units, count_by_unit
 
 st.set_page_config(layout="centered")  # ตั้งค่า layout เป็นแบบ "centered"
 
-st.title("โปรแกรมทำความสะอาดข้อมูล Excel พร้อมแสดงรายงาน")
+st.title("โปรแกรมทำความสะอาดข้อมูล Excel พร้อมแสดงข้อมูลหน่วยย่อย")
 
 # Upload Excel file
 uploaded_file = st.file_uploader("อัปโหลดไฟล์ Excel", type=["xlsx"])
@@ -30,7 +30,7 @@ if uploaded_file is not None:
         st.subheader("รายงานการทำความสะอาดข้อมูล:")
         st.dataframe(clean_report, use_container_width=True)
 
-        # Display counts by group with subunits (including units with no data)
+        # Display counts by group with subunits
         st.subheader("จำนวนคนในแต่ละกลุ่ม (พร้อมหน่วยย่อย):")
         group_counts_with_units = count_by_group_with_units(cleaned_df, unit_groups)
 
@@ -48,44 +48,24 @@ if uploaded_file is not None:
 
         st.dataframe(unit_counts, use_container_width=True)
 
-        # Function to create a summary report for all units in all groups
-        def create_summary_report(cleaned_df, unit_groups):
-            summary_report = []
-
-            for group_name, units in unit_groups.items():
-                for unit in units:
-                    # Count the number of people in each unit
-                    unit_count = cleaned_df[cleaned_df["สังกัด(หน่วยฝึกทหารใหม่)"] == unit].shape[0]
-                    summary_report.append({
-                        "กลุ่ม": group_name,
-                        "หน่วย": unit,
-                        "จำนวนคน": unit_count
-                    })
-
-            return pd.DataFrame(summary_report)
-
-        # Generate the summary report
-        summary_report = create_summary_report(cleaned_df, unit_groups)
-
-        # Add a download button for the summary report
-        st.subheader("ดาวน์โหลดรายงานรวมทุกหน่วย")
+        # Provide download link for the cleaned and updated data
+        st.subheader("ดาวน์โหลดข้อมูลที่แก้ไขแล้ว:")
         @st.cache_data
-        def convert_summary_to_excel(dataframe):
+        def convert_df_to_excel(dataframe):
             from io import BytesIO
             output = BytesIO()
             with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                dataframe.to_excel(writer, index=False, sheet_name='Summary Report')
+                dataframe.to_excel(writer, index=False, sheet_name='Cleaned Data')
             processed_data = output.getvalue()
             return processed_data
 
-        summary_file = convert_summary_to_excel(summary_report)
+        cleaned_file = convert_df_to_excel(cleaned_df)
         st.download_button(
-            label="📥 ดาวน์โหลดรายงานรวมทุกหน่วย (Excel)",
-            data=summary_file,
-            file_name="Summary_Report.xlsx",
+            label="📥 ดาวน์โหลดไฟล์ Excel",
+            data=cleaned_file,
+            file_name="Updated_Cleaned_Data.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาด: {e}")
 else:
