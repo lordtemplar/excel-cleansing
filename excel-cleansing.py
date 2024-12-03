@@ -30,18 +30,13 @@ if uploaded_file is not None:
         st.subheader("รายงานการทำความสะอาดข้อมูล:")
         st.dataframe(clean_report, use_container_width=True)
 
-        # Display counts by group with subunits (including units with no data)
+        # Display counts by group with subunits
         st.subheader("จำนวนคนในแต่ละกลุ่ม (พร้อมหน่วยย่อย):")
         group_counts_with_units = count_by_group_with_units(cleaned_df, unit_groups)
-        
+
         for group in group_counts_with_units:
             st.write(f"**{group['กลุ่ม']}** (จำนวนรวม: {group['จำนวนรวมในกลุ่ม']} คน)")
             st.dataframe(group["หน่วยย่อย"], use_container_width=True)
-
-        # Generate and display group report
-        st.subheader("รายงานรวมทุกหน่วยในกลุ่ม:")
-        group_report = generate_group_report(cleaned_df, unit_groups)
-        st.dataframe(group_report, use_container_width=True)
 
         # Count people by unit
         st.subheader("จำนวนคนในแต่ละหน่วย:")
