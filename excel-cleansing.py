@@ -42,24 +42,6 @@ if uploaded_file is not None:
         st.subheader("รายงานรวมทุกหน่วยในกลุ่ม:")
         group_report = generate_group_report(cleaned_df, unit_groups)
         st.dataframe(group_report, use_container_width=True)
-        
-        # Add download button for group report
-        @st.cache_data
-        def convert_group_report_to_excel(dataframe):
-            from io import BytesIO
-            output = BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                dataframe.to_excel(writer, index=False, sheet_name='Group Report')
-            processed_data = output.getvalue()
-            return processed_data
-        
-        group_report_file = convert_group_report_to_excel(group_report)
-        st.download_button(
-            label="📥 ดาวน์โหลดรายงานรวมทุกหน่วย (Excel)",
-            data=group_report_file,
-            file_name="Group_Report.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
 
         # Count people by unit
         st.subheader("จำนวนคนในแต่ละหน่วย:")
