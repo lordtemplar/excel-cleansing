@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
 from cleansing import clean_data
-from unit_groups import unit_groups, count_by_group, count_by_unit
+from unit_groups import unit_groups, count_by_group_with_units, count_by_unit
 
 st.set_page_config(layout="centered")  # ตั้งค่า layout เป็นแบบ "centered"
 
-st.title("โปรแกรมทำความสะอาดข้อมูล Excel พร้อมแก้ไขชื่อหน่วย")
+st.title("โปรแกรมทำความสะอาดข้อมูล Excel พร้อมแสดงข้อมูลหน่วยย่อย")
 
 # Upload Excel file
 uploaded_file = st.file_uploader("อัปโหลดไฟล์ Excel", type=["xlsx"])
@@ -26,33 +26,17 @@ if uploaded_file is not None:
         st.subheader("ข้อมูลที่ทำความสะอาดแล้ว:")
         st.dataframe(cleaned_df, use_container_width=True)  # แสดงข้อมูลหลังการ Clean
 
-        # Edit unit names
-        st.subheader("แก้ไขชื่อหน่วย:")
-        unique_units = cleaned_df["สังกัด(หน่วยฝึกทหารใหม่)"].unique()
-
-        # Select unit to edit
-        selected_unit = st.selectbox("เลือกหน่วยที่ต้องการแก้ไข", options=unique_units)
-
-        # Input new name
-        new_name = st.text_input("กรอกชื่อใหม่สำหรับหน่วย:", value=selected_unit)
-
-        if st.button("บันทึกการแก้ไข"):
-            # Apply changes to the DataFrame
-            cleaned_df["สังกัด(หน่วยฝึกทหารใหม่)"] = cleaned_df["สังกัด(หน่วยฝึกทหารใหม่)"].replace({selected_unit: new_name})
-            st.success(f"ชื่อหน่วย '{selected_unit}' ถูกแก้ไขเป็น '{new_name}' เรียบร้อย!")
-
-            # Display updated data
-            st.subheader("ข้อมูลหลังแก้ไขชื่อหน่วย:")
-            st.dataframe(cleaned_df, use_container_width=True)
-
         # Display clean report
         st.subheader("รายงานการทำความสะอาดข้อมูล:")
         st.dataframe(clean_report, use_container_width=True)
 
-        # Count people by group
-        st.subheader("จำนวนคนในแต่ละกลุ่ม:")
-        group_counts = count_by_group(cleaned_df, unit_groups)
-        st.dataframe(group_counts, use_container_width=True)
+        # Display counts by group with subunits
+        st.subheader("จำนวนคนในแต่ละกลุ่ม (พร้อมหน่วยย่อย):")
+        group_counts_with_units = count_by_group_with_units(cleaned_df, unit_groups)
+
+        for group in group_counts_with_units:
+            st.write(f"**{group['กลุ่ม']}** (จำนวนรวม: {group['จำนวนรวมในกลุ่ม']} คน)")
+            st.dataframe(group["หน่วยย่อย"], use_container_width=True)
 
         # Count people by unit
         st.subheader("จำนวนคนในแต่ละหน่วย:")
