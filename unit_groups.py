@@ -67,17 +67,6 @@ def count_by_group_with_units(df, unit_groups):
             .reset_index(name="จำนวนคน")
         )
 
-        # Add units with no data and mark them as "ไม่มีข้อมูล"
-        for unit in units:
-            if unit not in unit_details["สังกัด(หน่วยฝึกทหารใหม่)"].values:
-                unit_details = pd.concat(
-                    [unit_details, pd.DataFrame({"สังกัด(หน่วยฝึกทหารใหม่)": [unit], "จำนวนคน": [0]})],
-                    ignore_index=True
-                )
-
-        # Sort unit details alphabetically for clarity
-        unit_details = unit_details.sort_values(by="สังกัด(หน่วยฝึกทหารใหม่)").reset_index(drop=True)
-
         group_counts.append({
             "กลุ่ม": group_name,
             "จำนวนรวมในกลุ่ม": total_count,
