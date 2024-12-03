@@ -7,7 +7,6 @@ def clean_data(df):
     # Step 0: ลบช่องว่างและอักขระพิเศษใน "เลขบัตรประชาชน"
     initial_count = len(df)
     if "เลขบัตรประชาชน" in df.columns:
-        # ลบช่องว่างและอักขระพิเศษที่อาจมี
         df["เลขบัตรประชาชน"] = df["เลขบัตรประชาชน"].astype(str).str.replace(r"\s+", "", regex=True).str.strip()
         report.append({
             "ฟังก์ชันที่ใช้": "ลบช่องว่างและอักขระพิเศษในคอลัมน์ เลขบัตรประชาชน",
@@ -18,7 +17,7 @@ def clean_data(df):
 
     # Step 1: แปลงข้อมูลทุกคอลัมน์เป็น String
     initial_count = len(df)
-    df = df.astype(str)  # แปลงข้อมูลทุกคอลัมน์ให้เป็น String
+    df = df.astype(str)
     report.append({
         "ฟังก์ชันที่ใช้": "แปลงข้อมูลทุกคอลัมน์เป็น String",
         "จำนวนข้อมูลก่อน": initial_count,
@@ -28,8 +27,8 @@ def clean_data(df):
 
     # Step 2: ตรวจสอบ "เลขบัตรประชาชน" ให้ครบ 13 หลัก
     initial_count = len(df)
-    invalid_rows = df[df["เลขบัตรประชาชน"].str.len() != 13]  # แถวที่ไม่ผ่านเงื่อนไข
-    df = df[df["เลขบัตรประชาชน"].str.len() == 13]  # เก็บเฉพาะข้อมูลที่มี 13 หลัก
+    invalid_rows = df[df["เลขบัตรประชาชน"].str.len() != 13]
+    df = df[df["เลขบัตรประชาชน"].str.len() == 13]
     report.append({
         "ฟังก์ชันที่ใช้": "ลบข้อมูลที่เลขบัตรประชาชนไม่ครบ 13 หลัก",
         "จำนวนข้อมูลก่อน": initial_count,
@@ -76,16 +75,13 @@ def clean_data(df):
     # Step 7: แก้ไขเบอร์โทรศัพท์
     def clean_phone_number(phone):
         phone = str(phone).strip()
-        if len(phone) < 10:  # If less than 10 digits
-            return phone.zfill(10)  # Pad with leading zeros
-        elif len(phone) > 10:  # If more than 10 digits
-            return phone[:10]  # Trim to 10 digits
-        return phone  # Return as-is if exactly 10 digits
+        if len(phone) < 10:
+            return phone.zfill(10)
+        elif len(phone) > 10:
+            return phone[:10]
+        return phone
 
     df["เบอร์โทรศัพท์"] = df["เบอร์โทรศัพท์"].apply(clean_phone_number)
-
-    # Fill missing "เบอร์โทรศัพท์" by copying from the row above
-    initial_count = len(df)
     df["เบอร์โทรศัพท์"] = df["เบอร์โทรศัพท์"].fillna(method='ffill')
     report.append({
         "ฟังก์ชันที่ใช้": "แก้ไขเบอร์โทรศัพท์ให้ครบ 10 หลัก",
