@@ -7,8 +7,15 @@ def compare_excel(file1, file2):
     df1 = pd.read_excel(file1)
     df2 = pd.read_excel(file2)
     
+    # หาคีย์ที่เหมือนกันระหว่างสอง DataFrames
+    common_columns = list(set(df1.columns).intersection(set(df2.columns)))
+    
+    if not common_columns:
+        st.error("The two files do not have common columns to compare.")
+        return None, None
+    
     # หาข้อมูลที่เหมือนกัน
-    common_data = pd.merge(df1, df2, how='inner')
+    common_data = pd.merge(df1, df2, how='inner', on=common_columns)
     
     # หาข้อมูลที่แตกต่างกัน
     diff_data = pd.concat([df1, df2]).drop_duplicates(keep=False)
@@ -32,17 +39,18 @@ if file1 and file2:
     # เปรียบเทียบไฟล์
     common_data, diff_data = compare_excel(file1, file2)
     
-    # แสดงผลข้อมูลที่เหมือนและแตกต่าง
-    st.subheader("Common Data")
-    st.write(common_data)
-    
-    st.subheader("Different Data")
-    st.write(diff_data)
-    
-    # ปุ่มดาวน์โหลดไฟล์ที่แตกต่าง
-    st.download_button(
-        label="Download Different Data as Excel",
-        data=download_excel(diff_data),
-        file_name="different_data.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    if common_data is not None and diff_data is not None:
+        # แสดงผลข้อมูลที่เหมือนและแตกต่าง
+        st.subheader("Common Data")
+        st.write(common_data)
+        
+        st.subheader("Different Data")
+        st.write(diff_data)
+        
+        # ปุ่มดาวน์โหลดไฟล์ที่แตกต่าง
+        st.download_button(
+            label="Download Different Data as Excel",
+            data=download_excel(diff_data),
+            file_name="different_data.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
