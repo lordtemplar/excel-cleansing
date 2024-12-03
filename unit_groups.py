@@ -99,16 +99,3 @@ def count_by_unit(df):
     unit_counts["กลุ่ม"] = unit_counts["หน่วย"].map(group_mapping).fillna("ไม่ระบุ")
 
     return unit_counts
-
-def generate_group_report(df, unit_groups):
-    report = []
-
-    for group_name, units in unit_groups.items():
-        for unit in units:
-            # Count the number of people in each unit
-            count = df[df["สังกัด(หน่วยฝึกทหารใหม่)"] == unit].shape[0]
-            report.append({"กลุ่ม": group_name, "หน่วย": unit, "จำนวนคน": count})
-
-    # Convert report to DataFrame
-    report_df = pd.DataFrame(report)
-    return report_df
